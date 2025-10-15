@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Divino Pente - Agendamentos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-crown"></i>
+                </div>
+                <div>
+                    <div class="logo-text">Divino Pente</div>
+                    <div class="logo-subtitle">Agendamentos Online</div>
+                </div>
+            </div>
+            <div class="auth-buttons" id="authButtons">
+                <!-- Conteúdo dinâmico - será preenchido via JavaScript -->
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>Agende seu horário com estilo</h1>
+            <p>No Divino Pente, oferecemos serviços de qualidade com a excelência que você merece. Agende agora mesmo!</p>
+            <a href="#services" class="btn">Ver Serviços Disponíveis</a>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services" id="services">
+        <div class="container">
+            <h2 class="section-title">Nossos Serviços</h2>
+            <div class="services-grid" id="servicesContainer">
+                <!-- Serviços serão carregados dinamicamente aqui -->
+            </div>
+            
+            <div class="booking-form">
+                <h3>Agendar Serviço</h3>
+                <form id="bookingForm">
+                    <div class="form-group">
+                        <label for="serviceSelect">Serviço</label>
+                        <select class="form-control" id="serviceSelect" required>
+                            <option value="">Selecione um serviço</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="clientName">Seu Nome</label>
+                        <input type="text" class="form-control" id="clientName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="clientPhone">Telefone</label>
+                        <input type="tel" class="form-control" id="clientPhone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bookingDate">Data</label>
+                        <input type="date" class="form-control" id="bookingDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bookingTime">Horário</label>
+                        <input type="time" class="form-control" id="bookingTime" required>
+                    </div>
+                    <button type="submit" class="btn">Confirmar Agendamento</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- User Profile Section (visível apenas para usuários logados) -->
+    <section class="user-profile" id="userProfile" style="display: none;">
+        <div class="container">
+            <div class="profile-header">
+                <div class="profile-avatar" id="profileAvatar">
+                    <!-- Avatar será preenchido via JavaScript -->
+                </div>
+                <div class="profile-info">
+                    <h3 id="profileName">Nome do Usuário</h3>
+                    <p id="profileEmail">email@exemplo.com</p>
+                    <p id="profilePhone">(11) 99999-9999</p>
+                </div>
+            </div>
+            
+            <div class="bookings-list">
+                <h3>Meus Agendamentos</h3>
+                <div id="userBookings">
+                    <!-- Agendamentos serão carregados dinamicamente aqui -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Admin Panel (inicialmente oculto) -->
+    <section class="admin-panel" id="adminPanel">
+        <div class="container">
+            <div class="admin-tabs">
+                <div class="admin-tab active" data-tab="services-tab">Gerenciar Serviços</div>
+                <div class="admin-tab" data-tab="users-tab">Gerenciar Usuários</div>
+                <div class="admin-tab" data-tab="whatsapp-tab">Configurar WhatsApp</div>
+            </div>
+            
+            <div class="admin-content active" id="services-tab">
+                <h3>Adicionar Novo Serviço</h3>
+                <form id="addServiceForm">
+                    <div class="form-group">
+                        <label for="serviceName">Nome do Serviço</label>
+                        <input type="text" class="form-control" id="serviceName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="servicePrice">Preço</label>
+                        <input type="text" class="form-control" id="servicePrice" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="serviceDescription">Descrição</label>
+                        <textarea class="form-control" id="serviceDescription" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn">Adicionar Serviço</button>
+                </form>
+                
+                <h3 style="margin-top: 2rem;">Serviços Cadastrados</h3>
+                <ul class="service-list" id="adminServicesList">
+                    <!-- Serviços serão listados aqui -->
+                </ul>
+            </div>
+            
+            <div class="admin-content" id="users-tab">
+                <h3>Usuários Cadastrados</h3>
+                <div id="usersList">
+                    <!-- Usuários serão listados aqui -->
+                </div>
+            </div>
+            
+            <div class="admin-content" id="whatsapp-tab">
+                <h3>Configurações do WhatsApp</h3>
+                <div class="alert alert-success">
+                    <strong>Instruções:</strong> Configure o número do WhatsApp para receber notificações automaticamente quando novos agendamentos forem feitos.
+                </div>
+                <form id="whatsappForm">
+                    <div class="form-group">
+                        <label for="whatsappNumber">Número do WhatsApp</label>
+                        <input type="text" class="form-control" id="whatsappNumber" placeholder="Ex: 5511999999999" required>
+                        <small style="color: var(--text-muted); margin-top: 5px; display: block;">
+                            Formato: código do país + DDD + número (sem espaços ou caracteres especiais)
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label for="whatsappMessage">Mensagem Personalizada (opcional)</label>
+                        <textarea class="form-control" id="whatsappMessage" rows="4" placeholder="Mensagem padrão será usada se deixar em branco"></textarea>
+                        <small style="color: var(--text-muted); margin-top: 5px; display: block;">
+                            Use as variáveis: {cliente}, {servico}, {data}, {hora}, {telefone}
+                        </small>
+                    </div>
+                    <button type="submit" class="btn">Salvar Configurações</button>
+                </form>
+                
+                <div style="margin-top: 2rem; padding: 1rem; background: var(--primary); border-radius: 8px; border: 1px solid var(--border);">
+                    <h4>Configuração Atual</h4>
+                    <div id="currentWhatsappConfig">
+                        <!-- Configuração atual será exibida aqui -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Divino Pente</h3>
+                    <p>Agendamentos online rápidos e eficientes para sua comodidade. Estilo e qualidade em cada serviço.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h3>Contato</h3>
+                    <ul class="contact-info">
+                        <li><i class="fas fa-phone"></i> (11) 99999-9999</li>
+                        <li><i class="fas fa-envelope"></i> contato@divinopente.com</li>
+                        <li><i class="fas fa-map-marker-alt"></i> Rua Exemplo, 123 - São Paulo, SP</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Horário de Funcionamento</h3>
+                    <p>Segunda a Sexta: 8h às 18h</p>
+                    <p>Sábado: 8h às 12h</p>
+                    <p>Domingo: Fechado</p>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 Divino Pente - Todos os direitos reservados</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Auth Modal -->
+    <div class="modal" id="authModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Minha Conta</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            
+            <div class="modal-tabs">
+                <div class="modal-tab active" data-tab="login-tab">Entrar</div>
+                <div class="modal-tab" data-tab="register-tab">Criar Conta</div>
+            </div>
+            
+            <div id="alertContainer"></div>
+            
+            <div class="modal-tab-content active" id="login-tab">
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="loginEmail">E-mail</label>
+                        <input type="email" class="form-control" id="loginEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Senha</label>
+                        <input type="password" class="form-control" id="loginPassword" required>
+                    </div>
+                    <button type="submit" class="btn">Entrar</button>
+                </form>
+            </div>
+            
+            <div class="modal-tab-content" id="register-tab">
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="registerName">Nome Completo</label>
+                        <input type="text" class="form-control" id="registerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">E-mail</label>
+                        <input type="email" class="form-control" id="registerEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPhone">Telefone</label>
+                        <input type="tel" class="form-control" id="registerPhone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Senha</label>
+                        <input type="password" class="form-control" id="registerPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerConfirmPassword">Confirmar Senha</label>
+                        <input type="password" class="form-control" id="registerConfirmPassword" required>
+                    </div>
+                    <button type="submit" class="btn">Criar Conta</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    
+<script src="js/script.js"></script>
+</body></html>
