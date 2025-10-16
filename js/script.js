@@ -1,4 +1,5 @@
-// Banco de dados local usando IndexedDB
+
+        // Banco de dados local usando IndexedDB
         const DB_NAME = 'DivinoPenteDB';
         const DB_VERSION = 1;
         const USER_STORE = 'users';
@@ -154,7 +155,7 @@
                     email: 'divino@pente.com',
                     phone: '(11) 99999-9999',
                     isAdmin: true,
-                    note: document.getElementById('bookingNote') ? document.getElementById('bookingNote').value : '',\n                createdAt: new Date().toISOString()
+                    createdAt: new Date().toISOString()
                 };
             }
             
@@ -184,10 +185,13 @@
             // Se não houver serviços, adicionar alguns padrão
             if (services.length === 0) {
                 const defaultServices = [
-                    { name: "Corte de Cabelo", price: "R$ 25,00", description: "Corte moderno e estilizado" },
-                    { name: "Barba", price: "R$ 15,00", description: "Aparar e modelar a barba" },
-                    { name: "Corte + Barba", price: "R$ 35,00", description: "Pacote completo" },
-                    { name: "Hidratação", price: "R$ 20,00", description: "Hidratação profunda" }
+                    { name: "Corte Social", price: "R$ 15,00", description: "Corte social clássico." },
+                    { name: "Corte Degradê", price: "R$ 15,00", description: "Degradê profissional." },
+                    { name: "Corte Navalhado", price: "R$ 18,00", description: "Acabamento com navalha." },
+                    { name: "Pigmentação", price: "R$ 10,00", description: "Pigmentação para fios." },
+                    { name: "Desenhar Sobrancelha", price: "R$ 3,00", description: "Desenho preciso." },
+                    { name: "Desenho e Pigmentação de Sobrancelha", price: "R$ 5,00", description: "Desenho + pigmentação." },
+                    { name: "Barba", price: "R$ 5,00", description: "Aparar e modelar a barba." }
                 ];
                 
                 for (const service of defaultServices) {
@@ -214,36 +218,55 @@
             });
         }
 
-        
         async function sendWhatsAppNotification(bookingDetails) {
-            // Envia os dados para o endpoint do servidor que fará o envio via UltraMsg
-            try {
-                const payload = {
-                    to: bookingDetails.ownerNumber || '',
-                    clientName: bookingDetails.clientName,
-                    serviceName: bookingDetails.serviceName,
-                    date: bookingDetails.date,
-                    time: bookingDetails.time,
-                    phone: bookingDetails.phone,
-                    note: bookingDetails.note || ''
-                };
+            const config = await getWhatsAppConfig();
+            
+            if (!config || !config.number) {
+                console.log('Número do WhatsApp não configurado');
+                return;
+            }
+            
+            let message = config.message;
+            if (!message) {
+                message = `📅 *Novo Agendamento - Divino Pente* 📅\n\n` +
+                         `👤 *Cliente:* ${bookingDetails.clientName}\n` +
+                         `✂️ *Serviço:* ${bookingDetails.serviceName}\n` +
+                         `📅 *Data:* ${bookingDetails.date}\n` +
+                         `⏰ *Horário:* ${bookingDetails.time}\n` +
+                         `📞 *Telefone:* ${bookingDetails.phone}\n\n` +
+                         `_Agendamento realizado via sistema_`;
+            } else {
+                // Substituir variáveis na mensagem personalizada
+                message = message
+                    .replace(/{cliente}/g, bookingDetails.clientName)
+                    .replace(/{servico}/g, bookingDetails.serviceName)
+                    .replace(/{data}/g, bookingDetails.date)
+                    .replace(/{hora}/g, bookingDetails.time)
+                    .replace(/{telefone}/g, bookingDetails.phone);
+            }
+            
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/${config.number}?text=${encodedMessage}`;
+            
+            // Abrir WhatsApp em uma nova aba
+            window.open(whatsappUrl, '_blank');
+        }
+
+        async function loadWhatsAppConfig() {
+            const config = await getWhatsAppConfig();
+            
+            if (config) {
+                document.getElementById('whatsappNumber').value = config.number || '';
+                document.getElementById('whatsappMessage').value = config.message || '';
                 
-                const res = await fetch('/api/send_whatsapp.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                });
-                
-                const result = await res.json();
-                console.log('WhatsApp API response:', result);
-                
-                if (!result.success) {
-                    console.warn('Falha ao enviar notificação via WhatsApp:', result.message || result);
-                }
-            } catch (err) {
-                console.error('Erro ao chamar o endpoint de WhatsApp:', err);
+                // Atualizar display da configuração atual
+                currentWhatsappConfig.innerHTML = `
+                    <p><strong>Número:</strong> ${config.number || 'Não configurado'}</p>
+                    <p><strong>Mensagem:</strong> ${config.message ? 'Personalizada' : 'Padrão'}</p>
+                    ${config.message ? `<div style="margin-top: 10px; padding: 10px; background: var(--secondary); border-radius: 4px; font-size: 0.9rem;">${config.message}</div>` : ''}
+                `;
+            } else {
+                currentWhatsappConfig.innerHTML = '<p>Nenhuma configuração salva</p>';
             }
         }
 
@@ -443,7 +466,7 @@
                 date: document.getElementById('bookingDate').value,
                 time: document.getElementById('bookingTime').value,
                 status: 'Confirmado',
-                note: document.getElementById('bookingNote') ? document.getElementById('bookingNote').value : '',\n                createdAt: new Date().toISOString()
+                createdAt: new Date().toISOString()
             };
             
             try {
@@ -629,3 +652,23 @@
                 showAlert('Erro ao carregar o sistema. Recarregue a página.', 'error');
             }
         });
+    
+
+        async function sendWhatsAppNotification(bookingDetails) {
+            try {
+                const ownerNumber = '559885365002';
+                let message = '📅 *Novo Agendamento - Divino Pente*\n\n' +
+                              '👤 *Cliente:* ' + (bookingDetails.clientName || '') + '\n' +
+                              '📞 *Telefone:* ' + (bookingDetails.phone || '') + '\n' +
+                              '✂️ *Serviço:* ' + (bookingDetails.serviceName || '') + '\n' +
+                              '🏠 *Atendimento:* ' + (bookingDetails.homeService || 'Não') + '\n' +
+                              '📅 *Data:* ' + (bookingDetails.date || '') + '\n' +
+                              '⏰ *Horário:* ' + (bookingDetails.time || '') + '\n' +
+                              '📝 *Preferências:* ' + (bookingDetails.note || 'Nenhuma') + '\n';
+                const encoded = encodeURIComponent(message);
+                const waUrl = `https://wa.me/${ownerNumber}?text=${encoded}`;
+                window.open(waUrl, '_blank');
+            } catch (err) {
+                console.error('Erro ao criar link para WhatsApp:', err);
+            }
+        }

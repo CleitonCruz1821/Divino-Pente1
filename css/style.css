@@ -1,4 +1,5 @@
-:root {
+
+        :root {
             --primary: #121212;
             --secondary: #1a1a1a;
             --accent: #d4af37;
@@ -605,3 +606,4 @@
                 flex-direction: column;
             }
         }
+    
