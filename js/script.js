@@ -1,4 +1,5 @@
 
+
         // Banco de dados local usando IndexedDB
         const DB_NAME = 'DivinoPenteDB';
         const DB_VERSION = 1;
@@ -672,3 +673,55 @@
                 console.error('Erro ao criar link para WhatsApp:', err);
             }
         }
+
+
+/* === PATCH: BLOQUEIO DE HORÁRIOS DUPLICADOS + EXIBIR HORÁRIOS OCUPADOS === */
+
+// Buscar agendamentos por data
+async function getBookingsByDate(date) {
+    const allBookings = await getAllData(BOOKING_STORE);
+    return allBookings.filter(b => b.date === date);
+}
+
+// Monitorar data selecionada e mostrar horários ocupados
+const bookingDateInput = document.getElementById('bookingDate');
+const bookingTimeInput = document.getElementById('bookingTime');
+
+if (bookingDateInput) {
+    bookingDateInput.addEventListener('change', async () => {
+        const selectedDate = bookingDateInput.value;
+        if (!selectedDate) return;
+
+        const bookings = await getBookingsByDate(selectedDate);
+        const takenTimes = bookings.map(b => b.time);
+
+        let msg = "Horários ocupados: ";
+        msg += takenTimes.length > 0 ? takenTimes.join(", ") : "Nenhum horário ocupado";
+        showAlert(msg, 'success');
+
+        bookingTimeInput.addEventListener('input', () => {
+            if (takenTimes.includes(bookingTimeInput.value)) {
+                showAlert("Este horário já está agendado!", "error");
+                bookingTimeInput.value = "";
+            }
+        });
+    });
+}
+
+// Verificação antes de adicionar um agendamento (duplicado por data + hora)
+const oldBookingSubmit = bookingForm.onsubmit;
+
+bookingForm.addEventListener('submit', async (e) => {
+    const date = document.getElementById('bookingDate').value;
+    const time = document.getElementById('bookingTime').value;
+
+    const bookingsSameDate = await getBookingsByDate(date);
+    const conflict = bookingsSameDate.some(b => b.time === time);
+
+    if (conflict) {
+        e.preventDefault();
+        showAlert('Este horário já está ocupado! Escolha outro horário.', 'error');
+        return;
+    }
+});
+
